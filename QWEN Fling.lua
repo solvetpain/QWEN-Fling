@@ -1,3 +1,7 @@
+--[[
+    QWEN — UI от BIBIHOOK
+]]
+
 for _, gui in pairs(game.CoreGui:GetChildren()) do
     if gui.Name:find("QWEN") then pcall(function() gui:Destroy() end) end
 end
@@ -466,7 +470,7 @@ local function UpdateESP()
                 nL.TextStrokeColor3 = Color3.new(0,0,0); nL.TextStrokeTransparency = 0.3; nL.Parent = bb
                 local uL = Instance.new("TextLabel"); uL.Size = UDim2.new(1,0,0.35,0); uL.Position = UDim2.new(0,0,0.55,0)
                 uL.BackgroundTransparency = 1; uL.Font = Enum.Font.Gotham
-                uL.Text = "@"..player.Name..(isAdmin and AdminESPEnabled and " [Admin]" or "")
+                uL.Text = "@"..player.Name
                 uL.TextColor3 = THEME.textDim; uL.TextSize = 10; uL.TextStrokeColor3 = Color3.new(0,0,0); uL.TextStrokeTransparency = 0.4; uL.Parent = bb
                 table.insert(espBillboards, bb)
             end
@@ -778,8 +782,9 @@ do
     lt.Font = Enum.Font.GothamBlack; lt.Text = "Q"; lt.TextColor3 = THEME.primary; lt.TextSize = 18; lt.ZIndex = 214; lt.Parent = lc
     trackTheme(lt, "TextColor3", "primary")
 
+    -- Только название QWEN без подписи
     local tl = Instance.new("TextLabel")
-    tl.Size = UDim2.new(0,160,0,20); tl.Position = UDim2.new(0,52,0,7)
+    tl.Size = UDim2.new(0,160,0,28); tl.Position = UDim2.new(0,52,0.5,-14)
     tl.BackgroundTransparency = 1; tl.Font = Enum.Font.GothamBlack
     tl.Text = "QWEN"; tl.TextColor3 = THEME.text; tl.TextSize = 17
     tl.TextXAlignment = Enum.TextXAlignment.Left; tl.ZIndex = 212; tl.Parent = header
@@ -803,13 +808,6 @@ do
             task.wait(0.03)
         end
     end)
-
-    local stl = Instance.new("TextLabel")
-    stl.Size = UDim2.new(0,180,0,12); stl.Position = UDim2.new(0,52,0,28)
-    stl.BackgroundTransparency = 1; stl.Font = Enum.Font.Gotham
-    stl.Text = "["..MenuToggleKey.."] to toggle"; stl.TextColor3 = THEME.textMuted
-    stl.TextSize = 9; stl.TextXAlignment = Enum.TextXAlignment.Left; stl.ZIndex = 212; stl.Parent = header
-    getgenv().QWENKeyHintL = stl
 end
 
 local tabButtons = {}
@@ -831,7 +829,6 @@ contentArea.BackgroundTransparency = 1
 contentArea.ClipsDescendants = true
 contentArea.ZIndex = 210; contentArea.Parent = menuFrame
 
--- УБРАНА ВКЛАДКА STAFF
 local tabs = {"Player", "Fling", "Void", "Admin", "Settings"}
 
 local function SetTab(name)
@@ -840,8 +837,8 @@ local function SetTab(name)
     for n, btn in pairs(tabButtons) do
         local active = (n == name)
         Smooth(btn, {
-            BackgroundColor3 = active and THEME.primary or THEME.backgroundLighter,
-            BackgroundTransparency = active and 0.8 or 0.5,
+            BackgroundColor3 = active and THEME.backgroundLighter or THEME.backgroundLighter,
+            BackgroundTransparency = active and 0.1 or 0.5,
             TextColor3 = active and THEME.text or THEME.textMuted
         }, 0.2)
         local ind = btn:FindFirstChild("Indicator")
@@ -860,8 +857,8 @@ for i, name in ipairs(tabs) do
     local tb = Instance.new("TextButton")
     tb.Name = name
     tb.Size = UDim2.new(1,0,0,30)
-    tb.BackgroundColor3 = isFirst and THEME.primary or THEME.backgroundLighter
-    tb.BackgroundTransparency = isFirst and 0.8 or 0.5
+    tb.BackgroundColor3 = THEME.backgroundLighter
+    tb.BackgroundTransparency = isFirst and 0.1 or 0.5
     tb.Font = Enum.Font.GothamBold
     tb.Text = name
     tb.TextColor3 = isFirst and THEME.text or THEME.textMuted
@@ -886,7 +883,7 @@ for i, name in ipairs(tabs) do
 
     tb.MouseEnter:Connect(function()
         if currentTab ~= name then
-            Smooth(tb, {BackgroundTransparency=0.6, TextColor3=THEME.textDim}, 0.15)
+            Smooth(tb, {BackgroundTransparency=0.3, TextColor3=THEME.textDim}, 0.15)
         end
     end)
     tb.MouseLeave:Connect(function()
@@ -1034,32 +1031,29 @@ local function Toggle(parent, name, desc, callback)
     local stateKey = ToggleStateMap[name]
     local enabled = stateKey and State[stateKey] or false
 
+    -- Переключатель с темным фоном (не цветным)
     local tBg = Instance.new("Frame")
     tBg.Size = UDim2.new(0,36,0,20); tBg.Position = UDim2.new(1,-44,0.5,-10)
-    tBg.BackgroundColor3 = enabled and THEME.primary or THEME.backgroundLighter
+    tBg.BackgroundColor3 = THEME.backgroundLighter
     tBg.BorderSizePixel = 0; tBg.ZIndex = 212; tBg.Parent = container
     Corner(tBg, 10)
     local tSt = Instance.new("UIStroke"); tSt.Thickness = 1; tSt.Color = enabled and THEME.primary or THEME.border; tSt.Parent = tBg
     local tK = Instance.new("Frame")
     tK.Size = UDim2.new(0,16,0,16)
     tK.Position = enabled and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)
-    tK.BackgroundColor3 = THEME.text; tK.BorderSizePixel = 0; tK.ZIndex = 213; tK.Parent = tBg
+    tK.BackgroundColor3 = enabled and THEME.primary or THEME.textMuted
+    tK.BorderSizePixel = 0; tK.ZIndex = 213; tK.Parent = tBg
     Corner(tK, 8)
-    local sD = Instance.new("Frame")
-    sD.Size = UDim2.new(0,6,0,6); sD.Position = UDim2.new(0.5,-3,0.5,-3)
-    sD.BackgroundColor3 = enabled and THEME.success or THEME.danger
-    sD.BorderSizePixel = 0; sD.ZIndex = 214; sD.Parent = tK
-    Corner(sD, 3)
 
     local tBtn = Instance.new("TextButton")
     tBtn.Size = UDim2.new(0,36,0,20); tBtn.Position = UDim2.new(1,-44,0.5,-10)
     tBtn.BackgroundTransparency = 1; tBtn.Text = ""; tBtn.ZIndex = 215; tBtn.Parent = container
 
     local function updateVisual()
-        Smooth(tBg, {BackgroundColor3 = enabled and THEME.primary or THEME.backgroundLighter}, 0.2)
+        Smooth(tBg, {BackgroundColor3 = THEME.backgroundLighter}, 0.2)
         Smooth(tSt, {Color = enabled and THEME.primary or THEME.border}, 0.2)
         Tween(tK, {Position = enabled and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)}, 0.2, Enum.EasingStyle.Back)
-        Smooth(sD, {BackgroundColor3 = enabled and THEME.success or THEME.danger}, 0.2)
+        Smooth(tK, {BackgroundColor3 = enabled and THEME.primary or THEME.textMuted}, 0.2)
     end
 
     local function setEnabled(val)
@@ -1159,7 +1153,7 @@ local function Slider(parent, name, minV, maxV, def, callback)
 end
 
 -- ============================================================
--- ACTIVE WINDOW (отдельное прозрачное окно)
+-- ACTIVE WINDOW
 -- ============================================================
 local BindGui = Instance.new("ScreenGui")
 BindGui.Name = "QWENBind"; BindGui.ResetOnSpawn = false; BindGui.Parent = game.CoreGui
@@ -1181,12 +1175,12 @@ bindBoxStroke.Color = Color3.fromRGB(50, 50, 65)
 bindBoxStroke.Transparency = 0.3
 bindBoxStroke.Parent = BindBox
 
--- Заголовок
 local bbHeaderFrame = Instance.new("Frame")
 bbHeaderFrame.Size = UDim2.new(1,0,0,26)
 bbHeaderFrame.BackgroundTransparency = 1
 bbHeaderFrame.Parent = BindBox
 
+-- Статичная точка (без мигания)
 local bbDot = Instance.new("Frame")
 bbDot.Size = UDim2.new(0,5,0,5)
 bbDot.Position = UDim2.new(0,10,0.5,-2.5)
@@ -1195,12 +1189,6 @@ bbDot.BorderSizePixel = 0
 bbDot.ZIndex = 3
 bbDot.Parent = bbHeaderFrame
 Corner(bbDot, 3)
-task.spawn(function()
-    while bbDot and bbDot.Parent do
-        Smooth(bbDot, {BackgroundTransparency=0.6}, 0.5); task.wait(0.5)
-        Smooth(bbDot, {BackgroundTransparency=0}, 0.5); task.wait(0.5)
-    end
-end)
 
 local bbTitle = Instance.new("TextLabel")
 bbTitle.Size = UDim2.new(1,-24,1,0)
@@ -1214,7 +1202,6 @@ bbTitle.TextXAlignment = Enum.TextXAlignment.Left
 bbTitle.ZIndex = 3
 bbTitle.Parent = bbHeaderFrame
 
--- Разделитель
 local bbDivider = Instance.new("Frame")
 bbDivider.Size = UDim2.new(1,-16,0,1)
 bbDivider.Position = UDim2.new(0,8,0,26)
@@ -1233,7 +1220,6 @@ local bLay = Instance.new("UIListLayout", BindI); bLay.Padding = UDim.new(0,2)
 local bPa = Instance.new("UIPadding", BindI)
 bPa.PaddingLeft = UDim.new(0,6); bPa.PaddingRight = UDim.new(0,6); bPa.PaddingBottom = UDim.new(0,8); bPa.PaddingTop = UDim.new(0,4)
 
--- Drag для BindBox
 local bD = false; local bDS, bSP
 BindBox.InputBegan:Connect(function(i)
     if i.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -1335,7 +1321,7 @@ table.insert(allConnections, UIS.InputChanged:Connect(function(i)
 end))
 
 -- ============================================================
--- ADMIN WINDOW (отдельное плавающее окно с никами админов)
+-- ADMIN WINDOW
 -- ============================================================
 local AdminWinGui = Instance.new("ScreenGui")
 AdminWinGui.Name = "QWENAdminWin"
@@ -1361,12 +1347,12 @@ adminWinStroke.Color = Color3.fromRGB(185, 148, 55)
 adminWinStroke.Transparency = 0.5
 adminWinStroke.Parent = AdminWin
 
--- Заголовок Admin Window
 local awHeader = Instance.new("Frame")
 awHeader.Size = UDim2.new(1,0,0,26)
 awHeader.BackgroundTransparency = 1
 awHeader.Parent = AdminWin
 
+-- Статичная точка для Admin Window (без мигания)
 local awDot = Instance.new("Frame")
 awDot.Size = UDim2.new(0,5,0,5)
 awDot.Position = UDim2.new(0,10,0.5,-2.5)
@@ -1375,12 +1361,6 @@ awDot.BorderSizePixel = 0
 awDot.ZIndex = 3
 awDot.Parent = awHeader
 Corner(awDot, 3)
-task.spawn(function()
-    while awDot and awDot.Parent do
-        Smooth(awDot, {BackgroundTransparency=0.6}, 0.6); task.wait(0.6)
-        Smooth(awDot, {BackgroundTransparency=0}, 0.6); task.wait(0.6)
-    end
-end)
 
 local awTitle = Instance.new("TextLabel")
 awTitle.Size = UDim2.new(1,-24,1,0)
@@ -1394,7 +1374,6 @@ awTitle.TextXAlignment = Enum.TextXAlignment.Left
 awTitle.ZIndex = 3
 awTitle.Parent = awHeader
 
--- Разделитель
 local awDivider = Instance.new("Frame")
 awDivider.Size = UDim2.new(1,-16,0,1)
 awDivider.Position = UDim2.new(0,8,0,26)
@@ -1403,7 +1382,6 @@ awDivider.BackgroundTransparency = 0.7
 awDivider.BorderSizePixel = 0
 awDivider.Parent = AdminWin
 
--- Контейнер для списка админов
 local awList = Instance.new("Frame")
 awList.Size = UDim2.new(1,0,0,0)
 awList.Position = UDim2.new(0,0,0,30)
@@ -1418,7 +1396,6 @@ awPad.PaddingRight = UDim.new(0,6)
 awPad.PaddingBottom = UDim.new(0,8)
 awPad.PaddingTop = UDim.new(0,4)
 
--- Drag для Admin Window
 local awDrag = false; local awDragStart, awStartPos
 AdminWin.InputBegan:Connect(function(i)
     if i.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -1441,18 +1418,17 @@ end))
 local adminWinEntries = {}
 
 local function RefreshAdminWindow()
-    -- Очищаем старые записи
     for _, f in pairs(adminWinEntries) do pcall(function() f:Destroy() end) end
     adminWinEntries = {}
 
     local found = false
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= LP then
-            local isAdmin = CheckIfAdmin(plr)
+            local isAdmin, rank = CheckIfAdmin(plr)
             if isAdmin then
                 found = true
                 local ef = Instance.new("Frame")
-                ef.Size = UDim2.new(1,0,0,22)
+                ef.Size = UDim2.new(1,0,0,44)
                 ef.BackgroundColor3 = Color3.fromRGB(22,18,8)
                 ef.BackgroundTransparency = 0.5
                 ef.BorderSizePixel = 0
@@ -1469,8 +1445,8 @@ local function RefreshAdminWindow()
                 Corner(eAccent, 1)
 
                 local eName = Instance.new("TextLabel")
-                eName.Size = UDim2.new(1,-8,0.6,0)
-                eName.Position = UDim2.new(0,7,0,2)
+                eName.Size = UDim2.new(1,-8,0,14)
+                eName.Position = UDim2.new(0,7,0,4)
                 eName.BackgroundTransparency = 1
                 eName.Font = Enum.Font.GothamBold
                 eName.Text = plr.DisplayName
@@ -1481,8 +1457,8 @@ local function RefreshAdminWindow()
                 eName.Parent = ef
 
                 local eUser = Instance.new("TextLabel")
-                eUser.Size = UDim2.new(1,-8,0.35,0)
-                eUser.Position = UDim2.new(0,7,0.6,0)
+                eUser.Size = UDim2.new(1,-8,0,10)
+                eUser.Position = UDim2.new(0,7,0,20)
                 eUser.BackgroundTransparency = 1
                 eUser.Font = Enum.Font.Gotham
                 eUser.Text = "@"..plr.Name
@@ -1492,12 +1468,24 @@ local function RefreshAdminWindow()
                 eUser.ZIndex = 3
                 eUser.Parent = ef
 
+                -- Ранг выводим в отдельную строку
+                local eRank = Instance.new("TextLabel")
+                eRank.Size = UDim2.new(1,-8,0,10)
+                eRank.Position = UDim2.new(0,7,0,32)
+                eRank.BackgroundTransparency = 1
+                eRank.Font = Enum.Font.GothamBold
+                eRank.Text = "Rank: "..tostring(rank)
+                eRank.TextColor3 = Color3.fromRGB(185,148,55)
+                eRank.TextSize = 8
+                eRank.TextXAlignment = Enum.TextXAlignment.Left
+                eRank.ZIndex = 3
+                eRank.Parent = ef
+
                 table.insert(adminWinEntries, ef)
             end
         end
     end
 
-    -- Показываем окно только если есть админы
     if found then
         AdminWin.Visible = true
         Smooth(AdminWin, {BackgroundTransparency=0.25}, 0.3)
@@ -1555,12 +1543,12 @@ do
             tpToolConnection = tool.Activated:Connect(function()
                 local c = LP.Character; if c and c:FindFirstChild("HumanoidRootPart") then c.HumanoidRootPart.CFrame = CFrame.new(Mouse.Hit.p+Vector3.new(0,3,0)) end
             end)
-            ShowBindIndicator("TP Tool"); Notify("TP Tool","Equip from backpack",2,"success")
+            ShowBindIndicator("TP Tool")
         else
             if tpToolConnection then pcall(function() tpToolConnection:Disconnect() end); tpToolConnection=nil end
             for _, item in pairs(LP.Backpack:GetChildren()) do if item.Name=="TP_Tool" then item:Destroy() end end
             if LP.Character then for _, item in pairs(LP.Character:GetChildren()) do if item.Name=="TP_Tool" then item:Destroy() end end end
-            HideBindIndicator("TP Tool"); Notify("TP Tool","Removed",2,"info")
+            HideBindIndicator("TP Tool")
         end
     end)
     toggleCallbacks["TP Tool"] = function()
@@ -1588,6 +1576,7 @@ do
     flingStatusF.Size = UDim2.new(1,0,0,36); flingStatusF.BackgroundColor3 = THEME.backgroundLighter
     flingStatusF.BackgroundTransparency = 0.5; flingStatusF.BorderSizePixel = 0; flingStatusF.Parent = FP
     Corner(flingStatusF,6); Stroke(flingStatusF, THEME.border, 1, 0)
+    -- Статичная точка (без мигания)
     flingDot = Instance.new("Frame"); flingDot.Size = UDim2.new(0,5,0,5); flingDot.Position = UDim2.new(0,12,0.5,-2); flingDot.BackgroundColor3 = THEME.textMuted; flingDot.BorderSizePixel = 0; flingDot.Parent = flingStatusF; Corner(flingDot,3)
     flingStatusL = Instance.new("TextLabel"); flingStatusL.Size = UDim2.new(1,-26,1,0); flingStatusL.Position = UDim2.new(0,24,0,0); flingStatusL.BackgroundTransparency = 1; flingStatusL.Font = Enum.Font.GothamMedium; flingStatusL.Text = "Select targets"; flingStatusL.TextColor3 = THEME.textMuted; flingStatusL.TextSize = 11; flingStatusL.TextXAlignment = Enum.TextXAlignment.Left; flingStatusL.Parent = flingStatusF
 
@@ -1791,6 +1780,7 @@ do
     voidStatusF.Size = UDim2.new(1,0,0,36); voidStatusF.BackgroundColor3 = THEME.backgroundLighter
     voidStatusF.BackgroundTransparency = 0.5; voidStatusF.BorderSizePixel = 0; voidStatusF.Parent = VP
     Corner(voidStatusF,6); Stroke(voidStatusF, THEME.border, 1, 0)
+    -- Статичная точка (без мигания)
     voidStatusDot2 = Instance.new("Frame"); voidStatusDot2.Size = UDim2.new(0,5,0,5); voidStatusDot2.Position = UDim2.new(0,12,0.5,-2); voidStatusDot2.BackgroundColor3 = THEME.textMuted; voidStatusDot2.BorderSizePixel = 0; voidStatusDot2.Parent = voidStatusF; Corner(voidStatusDot2,3)
     voidStatusL2 = Instance.new("TextLabel"); voidStatusL2.Size = UDim2.new(1,-26,1,0); voidStatusL2.Position = UDim2.new(0,24,0,0); voidStatusL2.BackgroundTransparency = 1; voidStatusL2.Font = Enum.Font.GothamMedium; voidStatusL2.Text = "Above ground"; voidStatusL2.TextColor3 = THEME.textMuted; voidStatusL2.TextSize = 11; voidStatusL2.TextXAlignment = Enum.TextXAlignment.Left; voidStatusL2.Parent = voidStatusF
 
@@ -1842,15 +1832,18 @@ do
     local function AdminTog(parent, name, defVal, cb)
         local f = Instance.new("Frame"); f.Size = UDim2.new(1,0,0,38); f.BackgroundColor3 = THEME.backgroundLighter; f.BackgroundTransparency = 0.5; f.BorderSizePixel = 0; f.Parent = parent; Corner(f,6); Stroke(f,THEME.border,1,0)
         local nL = Instance.new("TextLabel"); nL.Size = UDim2.new(1,-60,0,16); nL.Position = UDim2.new(0,10,0.5,-8); nL.BackgroundTransparency = 1; nL.Font = Enum.Font.GothamSemibold; nL.Text = name; nL.TextColor3 = THEME.text; nL.TextSize = 11; nL.TextXAlignment = Enum.TextXAlignment.Left; nL.Parent = f
-        local tBg = Instance.new("Frame"); tBg.Size = UDim2.new(0,36,0,20); tBg.Position = UDim2.new(1,-44,0.5,-10); tBg.BackgroundColor3 = defVal and THEME.primary or THEME.backgroundLighter; tBg.BorderSizePixel = 0; tBg.Parent = f; Corner(tBg,10)
-        Stroke(tBg, defVal and THEME.primary or THEME.border, 1, 0)
-        local tK = Instance.new("Frame"); tK.Size = UDim2.new(0,16,0,16); tK.Position = defVal and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2); tK.BackgroundColor3 = THEME.text; tK.BorderSizePixel = 0; tK.Parent = tBg; Corner(tK,8)
+        -- Переключатель с темным фоном
+        local tBg = Instance.new("Frame"); tBg.Size = UDim2.new(0,36,0,20); tBg.Position = UDim2.new(1,-44,0.5,-10); tBg.BackgroundColor3 = THEME.backgroundLighter; tBg.BorderSizePixel = 0; tBg.Parent = f; Corner(tBg,10)
+        local tSt = Instance.new("UIStroke"); tSt.Thickness = 1; tSt.Color = defVal and THEME.primary or THEME.border; tSt.Parent = tBg
+        local tK = Instance.new("Frame"); tK.Size = UDim2.new(0,16,0,16); tK.Position = defVal and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2); tK.BackgroundColor3 = defVal and THEME.primary or THEME.textMuted; tK.BorderSizePixel = 0; tK.Parent = tBg; Corner(tK,8)
         local en = defVal
         local btn = Instance.new("TextButton"); btn.Size = UDim2.new(1,0,1,0); btn.BackgroundTransparency = 1; btn.Text = ""; btn.Parent = f
         btn.MouseButton1Click:Connect(function()
             en = not en
-            Smooth(tBg, {BackgroundColor3 = en and THEME.primary or THEME.backgroundLighter}, 0.18)
+            Smooth(tBg, {BackgroundColor3 = THEME.backgroundLighter}, 0.18)
+            Smooth(tSt, {Color = en and THEME.primary or THEME.border}, 0.18)
             Tween(tK, {Position = en and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)}, 0.2, Enum.EasingStyle.Back)
+            Smooth(tK, {BackgroundColor3 = en and THEME.primary or THEME.textMuted}, 0.18)
             cb(en); SaveSettings()
         end)
         f.MouseEnter:Connect(function() Smooth(f,{BackgroundTransparency=0.3},0.1) end)
@@ -1870,13 +1863,15 @@ local function RefreshAdminList()
     local adminCount = 0
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= LP then
-            local isAdmin = CheckIfAdmin(plr)
+            local isAdmin, rank = CheckIfAdmin(plr)
             if isAdmin then
                 adminCount += 1
-                local aF = Instance.new("Frame"); aF.Size = UDim2.new(1,0,0,46); aF.BackgroundColor3 = THEME.backgroundLighter; aF.BackgroundTransparency = 0.5; aF.BorderSizePixel = 0; aF.Parent = adminListCont; Corner(aF,6); Stroke(aF,THEME.border,1,0)
+                local aF = Instance.new("Frame"); aF.Size = UDim2.new(1,0,0,56); aF.BackgroundColor3 = THEME.backgroundLighter; aF.BackgroundTransparency = 0.5; aF.BorderSizePixel = 0; aF.Parent = adminListCont; Corner(aF,6); Stroke(aF,THEME.border,1,0)
                 local strip = Instance.new("Frame"); strip.Size = UDim2.new(0,3,0.7,0); strip.Position = UDim2.new(0,0,0.15,0); strip.BackgroundColor3 = Color3.fromRGB(185,148,55); strip.BorderSizePixel = 0; strip.Parent = aF; Corner(strip,2)
-                local nL = Instance.new("TextLabel"); nL.Size = UDim2.new(1,-16,0,16); nL.Position = UDim2.new(0,14,0,8); nL.BackgroundTransparency = 1; nL.Font = Enum.Font.GothamBold; nL.Text = plr.DisplayName; nL.TextColor3 = THEME.text; nL.TextSize = 11; nL.TextXAlignment = Enum.TextXAlignment.Left; nL.Parent = aF
-                local uL = Instance.new("TextLabel"); uL.Size = UDim2.new(1,-16,0,11); uL.Position = UDim2.new(0,14,0,26); uL.BackgroundTransparency = 1; uL.Font = Enum.Font.Gotham; uL.Text = "@"..plr.Name; uL.TextColor3 = THEME.textMuted; uL.TextSize = 9; uL.TextXAlignment = Enum.TextXAlignment.Left; uL.Parent = aF
+                local nL = Instance.new("TextLabel"); nL.Size = UDim2.new(1,-16,0,16); nL.Position = UDim2.new(0,14,0,6); nL.BackgroundTransparency = 1; nL.Font = Enum.Font.GothamBold; nL.Text = plr.DisplayName; nL.TextColor3 = THEME.text; nL.TextSize = 11; nL.TextXAlignment = Enum.TextXAlignment.Left; nL.Parent = aF
+                local uL = Instance.new("TextLabel"); uL.Size = UDim2.new(1,-16,0,11); uL.Position = UDim2.new(0,14,0,24); uL.BackgroundTransparency = 1; uL.Font = Enum.Font.Gotham; uL.Text = "@"..plr.Name; uL.TextColor3 = THEME.textMuted; uL.TextSize = 9; uL.TextXAlignment = Enum.TextXAlignment.Left; uL.Parent = aF
+                -- Ранг в отдельной строке
+                local rL = Instance.new("TextLabel"); rL.Size = UDim2.new(1,-16,0,11); rL.Position = UDim2.new(0,14,0,37); rL.BackgroundTransparency = 1; rL.Font = Enum.Font.GothamBold; rL.Text = "Rank: "..tostring(rank); rL.TextColor3 = Color3.fromRGB(185,148,55); rL.TextSize = 9; rL.TextXAlignment = Enum.TextXAlignment.Left; rL.Parent = aF
                 table.insert(adminListItems, aF)
             end
         end
@@ -1889,7 +1884,6 @@ local function RefreshAdminList()
         if adminStatusL2 then adminStatusL2.Text = adminCount.." admin(s) in server"; adminStatusL2.TextColor3 = THEME.textDim end
     end
 
-    -- Обновляем плавающее окно
     RefreshAdminWindow()
 end
 
@@ -1902,6 +1896,8 @@ do
     local keyTitle = Instance.new("TextLabel"); keyTitle.Size = UDim2.new(0.6,0,0,16); keyTitle.Position = UDim2.new(0,10,0,6); keyTitle.BackgroundTransparency = 1; keyTitle.Font = Enum.Font.GothamSemibold; keyTitle.Text = "Menu Toggle Key"; keyTitle.TextColor3 = THEME.text; keyTitle.TextSize = 11; keyTitle.TextXAlignment = Enum.TextXAlignment.Left; keyTitle.Parent = keyCard
     local keyDesc = Instance.new("TextLabel"); keyDesc.Size = UDim2.new(0.6,0,0,11); keyDesc.Position = UDim2.new(0,10,0,26); keyDesc.BackgroundTransparency = 1; keyDesc.Font = Enum.Font.Gotham; keyDesc.Text = "Click to change"; keyDesc.TextColor3 = THEME.textMuted; keyDesc.TextSize = 9; keyDesc.TextXAlignment = Enum.TextXAlignment.Left; keyDesc.Parent = keyCard
     local keyBadge = Instance.new("TextButton"); keyBadge.Size = UDim2.new(0,80,0,24); keyBadge.Position = UDim2.new(1,-90,0.5,-12); keyBadge.BackgroundColor3 = THEME.backgroundLighter; keyBadge.Font = Enum.Font.GothamBold; keyBadge.Text = MenuToggleKey; keyBadge.TextColor3 = THEME.textDim; keyBadge.TextSize = 10; keyBadge.AutoButtonColor = false; keyBadge.Parent = keyCard; Corner(keyBadge,6); Stroke(keyBadge,THEME.border,1,0)
+    keyCard.MouseEnter:Connect(function() Smooth(keyCard,{BackgroundTransparency=0.3},0.1) end)
+    keyCard.MouseLeave:Connect(function() Smooth(keyCard,{BackgroundTransparency=0.5},0.1) end)
     keyBadge.MouseEnter:Connect(function() if not isWaitingForKey then Smooth(keyBadge,{BackgroundTransparency=0.3,TextColor3=THEME.text},0.1) end end)
     keyBadge.MouseLeave:Connect(function() if not isWaitingForKey then Smooth(keyBadge,{BackgroundTransparency=0.5,TextColor3=THEME.textDim},0.1) end end)
     keyBadge.MouseButton1Click:Connect(function()
@@ -1915,7 +1911,6 @@ do
                 end
                 local kn2 = tostring(i2.KeyCode):gsub("Enum.KeyCode.","")
                 MenuToggleKey = kn2; keyBadge.Text = kn2; keyBadge.TextColor3 = THEME.textDim
-                if getgenv().QWENKeyHintL then getgenv().QWENKeyHintL.Text = "["..kn2.."] to toggle" end
                 Smooth(keyBadge,{BackgroundTransparency=0.5},0.1); isWaitingForKey=false; kconn:Disconnect()
                 SaveSettings(); Notify("Settings","Menu key → ["..kn2.."]",2,"success")
             end
@@ -1926,17 +1921,19 @@ do
     local snowTitle = Instance.new("TextLabel"); snowTitle.Size = UDim2.new(0.6,0,0,16); snowTitle.Position = UDim2.new(0,10,0,6); snowTitle.BackgroundTransparency = 1; snowTitle.Font = Enum.Font.GothamSemibold; snowTitle.Text = "Snow Effect"; snowTitle.TextColor3 = THEME.text; snowTitle.TextSize = 11; snowTitle.TextXAlignment = Enum.TextXAlignment.Left; snowTitle.Parent = snowCard
     local snowDesc = Instance.new("TextLabel"); snowDesc.Size = UDim2.new(0.6,0,0,11); snowDesc.Position = UDim2.new(0,10,0,26); snowDesc.BackgroundTransparency = 1; snowDesc.Font = Enum.Font.Gotham; snowDesc.Text = "Falling snow in menu"; snowDesc.TextColor3 = THEME.textMuted; snowDesc.TextSize = 9; snowDesc.TextXAlignment = Enum.TextXAlignment.Left; snowDesc.Parent = snowCard
 
-    local sBg = Instance.new("Frame"); sBg.Size = UDim2.new(0,36,0,20); sBg.Position = UDim2.new(1,-44,0.5,-10); sBg.BackgroundColor3 = snowEnabled and THEME.primary or THEME.backgroundLighter; sBg.BorderSizePixel = 0; sBg.Parent = snowCard; Corner(sBg,10)
+    -- Переключатель снега с темным фоном
+    local sBg = Instance.new("Frame"); sBg.Size = UDim2.new(0,36,0,20); sBg.Position = UDim2.new(1,-44,0.5,-10); sBg.BackgroundColor3 = THEME.backgroundLighter; sBg.BorderSizePixel = 0; sBg.Parent = snowCard; Corner(sBg,10)
     local sSt = Instance.new("UIStroke"); sSt.Thickness = 1; sSt.Color = snowEnabled and THEME.primary or THEME.border; sSt.Parent = sBg
-    local sK = Instance.new("Frame"); sK.Size = UDim2.new(0,16,0,16); sK.Position = snowEnabled and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2); sK.BackgroundColor3 = THEME.text; sK.BorderSizePixel = 0; sK.ZIndex = 213; sK.Parent = sBg; Corner(sK,8)
+    local sK = Instance.new("Frame"); sK.Size = UDim2.new(0,16,0,16); sK.Position = snowEnabled and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2); sK.BackgroundColor3 = snowEnabled and THEME.primary or THEME.textMuted; sK.BorderSizePixel = 0; sK.ZIndex = 213; sK.Parent = sBg; Corner(sK,8)
     local sBtn = Instance.new("TextButton"); sBtn.Size = UDim2.new(0,36,0,20); sBtn.Position = UDim2.new(1,-44,0.5,-10); sBtn.BackgroundTransparency = 1; sBtn.Text = ""; sBtn.ZIndex = 215; sBtn.Parent = snowCard
     snowCard.MouseEnter:Connect(function() Smooth(snowCard,{BackgroundTransparency=0.3},0.1) end)
     snowCard.MouseLeave:Connect(function() Smooth(snowCard,{BackgroundTransparency=0.5},0.1) end)
     sBtn.MouseButton1Click:Connect(function()
         snowEnabled = not snowEnabled
-        Smooth(sBg, {BackgroundColor3 = snowEnabled and THEME.primary or THEME.backgroundLighter}, 0.18)
+        Smooth(sBg, {BackgroundColor3 = THEME.backgroundLighter}, 0.18)
         Smooth(sSt, {Color = snowEnabled and THEME.primary or THEME.border}, 0.18)
         Tween(sK, {Position = snowEnabled and UDim2.new(1,-18,0,2) or UDim2.new(0,2,0,2)}, 0.2, Enum.EasingStyle.Back)
+        Smooth(sK, {BackgroundColor3 = snowEnabled and THEME.primary or THEME.textMuted}, 0.18)
         if snowEnabled then
             createSnowContainer(menuFrame)
         else
@@ -2065,21 +2062,14 @@ do
     ft.Text = "QWEN  •  Press "..MenuToggleKey.." to toggle"
     ft.TextColor3 = THEME.textMuted; ft.TextSize = 8; ft.ZIndex = 211; ft.Parent = footer
 
+    -- Статичный зеленый индикатор (без мигания)
     local sd = Instance.new("Frame")
     sd.Size = UDim2.new(0,6,0,6); sd.Position = UDim2.new(1,-14,0.5,-3)
     sd.BackgroundColor3 = THEME.success; sd.BorderSizePixel = 0; sd.ZIndex = 211; sd.Parent = footer
     Corner(sd, 3)
-    task.spawn(function()
-        while sd and sd.Parent do
-            Smooth(sd, {BackgroundTransparency=0.5}, 0.5); task.wait(0.5)
-            Smooth(sd, {BackgroundTransparency=0}, 0.5); task.wait(0.5)
-        end
-    end)
 end
 
--- ============================================================
--- HUD — длинное прозрачное окно с FPS / Сессия / Пинг
--- ============================================================
+-- HUD
 do
     local HUDSG = Instance.new("ScreenGui")
     HUDSG.Name = "QWENHUD"
@@ -2103,7 +2093,6 @@ do
     hudStroke.Transparency = 0.4
     hudStroke.Parent = HUD
 
-    -- Drag
     local hudDrag = false; local hudDragStart, hudStartPos
     HUD.InputBegan:Connect(function(i)
         if i.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -2122,14 +2111,12 @@ do
         end
     end))
 
-    -- Внутренний контейнер (горизонтальный)
     local hudInner = Instance.new("Frame")
     hudInner.Size = UDim2.new(1,-16,1,0)
     hudInner.Position = UDim2.new(0,8,0,0)
     hudInner.BackgroundTransparency = 1
     hudInner.Parent = HUD
 
-    -- Лого
     local hudLogo = Instance.new("TextLabel")
     hudLogo.Size = UDim2.new(0,32,1,0)
     hudLogo.Position = UDim2.new(0,0,0,0)
@@ -2141,132 +2128,65 @@ do
     hudLogo.ZIndex = 2
     hudLogo.Parent = hudInner
 
-    -- Разделитель 1
     local sep1 = Instance.new("Frame")
-    sep1.Size = UDim2.new(0,1,0.6,0)
-    sep1.Position = UDim2.new(0,30,0.2,0)
-    sep1.BackgroundColor3 = Color3.fromRGB(50,50,65)
-    sep1.BackgroundTransparency = 0.3
-    sep1.BorderSizePixel = 0
-    sep1.Parent = hudInner
+    sep1.Size = UDim2.new(0,1,0.6,0); sep1.Position = UDim2.new(0,30,0.2,0)
+    sep1.BackgroundColor3 = Color3.fromRGB(50,50,65); sep1.BackgroundTransparency = 0.3; sep1.BorderSizePixel = 0; sep1.Parent = hudInner
 
-    -- FPS блок
     local hFPSLabel = Instance.new("TextLabel")
-    hFPSLabel.Size = UDim2.new(0,18,0,10)
-    hFPSLabel.Position = UDim2.new(0,36,0,3)
-    hFPSLabel.BackgroundTransparency = 1
-    hFPSLabel.Font = Enum.Font.GothamBold
-    hFPSLabel.Text = "FPS"
-    hFPSLabel.TextColor3 = Color3.fromRGB(100,100,120)
-    hFPSLabel.TextSize = 7
-    hFPSLabel.ZIndex = 2
-    hFPSLabel.Parent = hudInner
+    hFPSLabel.Size = UDim2.new(0,18,0,10); hFPSLabel.Position = UDim2.new(0,36,0,3)
+    hFPSLabel.BackgroundTransparency = 1; hFPSLabel.Font = Enum.Font.GothamBold
+    hFPSLabel.Text = "FPS"; hFPSLabel.TextColor3 = Color3.fromRGB(100,100,120); hFPSLabel.TextSize = 7; hFPSLabel.ZIndex = 2; hFPSLabel.Parent = hudInner
 
     local hFPS = Instance.new("TextLabel")
-    hFPS.Size = UDim2.new(0,30,0,12)
-    hFPS.Position = UDim2.new(0,36,0,13)
-    hFPS.BackgroundTransparency = 1
-    hFPS.Font = Enum.Font.GothamBold
-    hFPS.Text = "60"
-    hFPS.TextColor3 = Color3.fromRGB(34,197,94)
-    hFPS.TextSize = 11
-    hFPS.ZIndex = 2
-    hFPS.Parent = hudInner
+    hFPS.Size = UDim2.new(0,30,0,12); hFPS.Position = UDim2.new(0,36,0,13)
+    hFPS.BackgroundTransparency = 1; hFPS.Font = Enum.Font.GothamBold
+    hFPS.Text = "60"; hFPS.TextColor3 = Color3.fromRGB(34,197,94); hFPS.TextSize = 11; hFPS.ZIndex = 2; hFPS.Parent = hudInner
 
-    -- Разделитель 2
     local sep2 = Instance.new("Frame")
-    sep2.Size = UDim2.new(0,1,0.6,0)
-    sep2.Position = UDim2.new(0,72,0.2,0)
-    sep2.BackgroundColor3 = Color3.fromRGB(50,50,65)
-    sep2.BackgroundTransparency = 0.3
-    sep2.BorderSizePixel = 0
-    sep2.Parent = hudInner
+    sep2.Size = UDim2.new(0,1,0.6,0); sep2.Position = UDim2.new(0,72,0.2,0)
+    sep2.BackgroundColor3 = Color3.fromRGB(50,50,65); sep2.BackgroundTransparency = 0.3; sep2.BorderSizePixel = 0; sep2.Parent = hudInner
 
-    -- Session блок
     local hSessLabel = Instance.new("TextLabel")
-    hSessLabel.Size = UDim2.new(0,40,0,10)
-    hSessLabel.Position = UDim2.new(0,78,0,3)
-    hSessLabel.BackgroundTransparency = 1
-    hSessLabel.Font = Enum.Font.GothamBold
-    hSessLabel.Text = "SESSION"
-    hSessLabel.TextColor3 = Color3.fromRGB(100,100,120)
-    hSessLabel.TextSize = 7
-    hSessLabel.ZIndex = 2
-    hSessLabel.Parent = hudInner
+    hSessLabel.Size = UDim2.new(0,40,0,10); hSessLabel.Position = UDim2.new(0,78,0,3)
+    hSessLabel.BackgroundTransparency = 1; hSessLabel.Font = Enum.Font.GothamBold
+    hSessLabel.Text = "SESSION"; hSessLabel.TextColor3 = Color3.fromRGB(100,100,120); hSessLabel.TextSize = 7; hSessLabel.ZIndex = 2; hSessLabel.Parent = hudInner
 
     local hSession = Instance.new("TextLabel")
-    hSession.Size = UDim2.new(0,60,0,12)
-    hSession.Position = UDim2.new(0,78,0,13)
-    hSession.BackgroundTransparency = 1
-    hSession.Font = Enum.Font.GothamBold
-    hSession.Text = "00:00:00"
-    hSession.TextColor3 = Color3.fromRGB(180,180,200)
-    hSession.TextSize = 11
-    hSession.ZIndex = 2
-    hSession.Parent = hudInner
+    hSession.Size = UDim2.new(0,60,0,12); hSession.Position = UDim2.new(0,78,0,13)
+    hSession.BackgroundTransparency = 1; hSession.Font = Enum.Font.GothamBold
+    hSession.Text = "00:00:00"; hSession.TextColor3 = Color3.fromRGB(180,180,200); hSession.TextSize = 11; hSession.ZIndex = 2; hSession.Parent = hudInner
 
-    -- Разделитель 3
     local sep3 = Instance.new("Frame")
-    sep3.Size = UDim2.new(0,1,0.6,0)
-    sep3.Position = UDim2.new(0,144,0.2,0)
-    sep3.BackgroundColor3 = Color3.fromRGB(50,50,65)
-    sep3.BackgroundTransparency = 0.3
-    sep3.BorderSizePixel = 0
-    sep3.Parent = hudInner
+    sep3.Size = UDim2.new(0,1,0.6,0); sep3.Position = UDim2.new(0,144,0.2,0)
+    sep3.BackgroundColor3 = Color3.fromRGB(50,50,65); sep3.BackgroundTransparency = 0.3; sep3.BorderSizePixel = 0; sep3.Parent = hudInner
 
-    -- Ping блок
     local hPingLabel = Instance.new("TextLabel")
-    hPingLabel.Size = UDim2.new(0,30,0,10)
-    hPingLabel.Position = UDim2.new(0,150,0,3)
-    hPingLabel.BackgroundTransparency = 1
-    hPingLabel.Font = Enum.Font.GothamBold
-    hPingLabel.Text = "PING"
-    hPingLabel.TextColor3 = Color3.fromRGB(100,100,120)
-    hPingLabel.TextSize = 7
-    hPingLabel.ZIndex = 2
-    hPingLabel.Parent = hudInner
+    hPingLabel.Size = UDim2.new(0,30,0,10); hPingLabel.Position = UDim2.new(0,150,0,3)
+    hPingLabel.BackgroundTransparency = 1; hPingLabel.Font = Enum.Font.GothamBold
+    hPingLabel.Text = "PING"; hPingLabel.TextColor3 = Color3.fromRGB(100,100,120); hPingLabel.TextSize = 7; hPingLabel.ZIndex = 2; hPingLabel.Parent = hudInner
 
     local hPing = Instance.new("TextLabel")
-    hPing.Size = UDim2.new(0,50,0,12)
-    hPing.Position = UDim2.new(0,150,0,13)
-    hPing.BackgroundTransparency = 1
-    hPing.Font = Enum.Font.GothamBold
-    hPing.Text = "0ms"
-    hPing.TextColor3 = Color3.fromRGB(34,197,94)
-    hPing.TextSize = 11
-    hPing.ZIndex = 2
-    hPing.Parent = hudInner
+    hPing.Size = UDim2.new(0,50,0,12); hPing.Position = UDim2.new(0,150,0,13)
+    hPing.BackgroundTransparency = 1; hPing.Font = Enum.Font.GothamBold
+    hPing.Text = "0ms"; hPing.TextColor3 = Color3.fromRGB(34,197,94); hPing.TextSize = 11; hPing.ZIndex = 2; hPing.Parent = hudInner
 
-    -- Обновление HUD
     task.spawn(function()
         while Running do
-            -- FPS
             hFPS.Text = tostring(fpsValue)
-            if fpsValue >= 50 then
-                hFPS.TextColor3 = Color3.fromRGB(34,197,94)
-            elseif fpsValue >= 30 then
-                hFPS.TextColor3 = Color3.fromRGB(185,148,55)
-            else
-                hFPS.TextColor3 = Color3.fromRGB(239,68,68)
-            end
+            if fpsValue >= 50 then hFPS.TextColor3 = Color3.fromRGB(34,197,94)
+            elseif fpsValue >= 30 then hFPS.TextColor3 = Color3.fromRGB(185,148,55)
+            else hFPS.TextColor3 = Color3.fromRGB(239,68,68) end
 
-            -- Ping
             local ping = 0
             pcall(function()
                 ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
             end)
             hPing.Text = ping.."ms"
-            if ping < 80 then
-                hPing.TextColor3 = Color3.fromRGB(34,197,94)
-            elseif ping < 150 then
-                hPing.TextColor3 = Color3.fromRGB(185,148,55)
-            else
-                hPing.TextColor3 = Color3.fromRGB(239,68,68)
-            end
+            if ping < 80 then hPing.TextColor3 = Color3.fromRGB(34,197,94)
+            elseif ping < 150 then hPing.TextColor3 = Color3.fromRGB(185,148,55)
+            else hPing.TextColor3 = Color3.fromRGB(239,68,68) end
 
-            -- Session
             hSession.Text = FormatTime(os.time()-StartTime)
-
             task.wait(0.5)
         end
     end)
